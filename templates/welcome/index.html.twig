@@ -1,8 +1,12 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    Hello {{ name }}!
 
-    <a href="{{ path("user_index") }}">Felhasználók kezelése</a>
+    <h1 class="text-center">Hello {{ name }}!</h1>
+
+    <div class="d-flex justify-content-center my-5">
+        <a href="{{ path("user_index") }}" class="btn btn-outline-info">Felhasználók kezelése</a>
+    </div>
+
 
 {% endblock %}
