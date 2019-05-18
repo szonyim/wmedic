@@ -3,24 +3,24 @@
 {% block title %}User{% endblock %}
 
 {% block body %}
-    <h1>User</h1>
+    <h1>Felhasználó</h1>
 
     <table class="table">
         <tbody>
             <tr>
-                <th>Id</th>
+                <th>Azonosító</th>
                 <td>{{ user.id }}</td>
             </tr>
             <tr>
-                <th>UserName</th>
+                <th>Név</th>
                 <td>{{ user.userName }}</td>
             </tr>
             <tr>
-                <th>PhoneNumber</th>
+                <th>Telefonszám</th>
                 <td>{{ user.phoneNumber }}</td>
             </tr>
             <tr>
-                <th>CreatedAt</th>
+                <th>Létrehozva</th>
                 <td>{{ user.createdAt ? user.createdAt|date('Y-m-d H:i:s') : '' }}</td>
             </tr>
             <tr>
@@ -28,19 +28,13 @@
                 <td>{{ user.email }}</td>
             </tr>
             <tr>
-                <th>Roles</th>
+                <th>Szerepkörök</th>
                 <td>{{ user.roles ? user.roles|json_encode : '' }}</td>
-            </tr>
-            <tr>
-                <th>Password</th>
-                <td>{{ user.password }}</td>
             </tr>
         </tbody>
     </table>
 
-    <a href="{{ path('user_index') }}">back to list</a>
-
-    <a href="{{ path('user_edit', {'id': user.id}) }}">edit</a>
-
+    <a href="{{ path('user_index') }}" class="btn btn-outline-secondary float-left mx-1">Vissza</a>
+    <a href="{{ path('user_edit', {'id': user.id}) }}" class="btn btn-outline-warning float-left mx-1">Szerkesztés</a>
     {{ include('user/_delete_form.html.twig') }}
 {% endblock %}

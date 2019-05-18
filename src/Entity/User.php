@@ -49,6 +49,11 @@ class User implements UserInterface
     private $password;
 
     /**
+     * @var
+     */
+    private $newPassword;
+
+    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="createdUsers")
      * @ORM\JoinColumn(name="created_by_id", referencedColumnName="id")
      *
@@ -68,6 +73,11 @@ class User implements UserInterface
     public function __construct()
     {
         $this->createdAt = new \DateTime('now');
+    }
+
+    public function __toString()
+    {
+        return $this->getUsername();
     }
 
 
@@ -241,5 +251,19 @@ class User implements UserInterface
         return $this;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getNewPassword()
+    {
+        return $this->newPassword;
+    }
 
+    /**
+     * @param mixed $newPassword
+     */
+    public function setNewPassword($newPassword): void
+    {
+        $this->newPassword = $newPassword;
+    }
 }

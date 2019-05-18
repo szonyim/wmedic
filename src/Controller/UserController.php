@@ -5,16 +5,29 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Repository\UserRepository;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 /**
  * @Route("/user")
  */
 class UserController extends AbstractController
 {
+    private $passwordEncoder;
+
+    public function __construct(UserPasswordEncoderInterface $passwordEncoder)
+    {
+        $this->passwordEncoder = $passwordEncoder;
+    }
+
     /**
      * @Route("/", name="user_index", methods={"GET"})
      */
@@ -32,9 +45,19 @@ class UserController extends AbstractController
     {
         $user = new User();
         $form = $this->createFormBuilder($user)
-        ->add('userName')
-            ->add('phoneNumber')
-            ->add('email')
+        ->add('userName', null, ['label' => 'Név'])
+            ->add('phoneNumber', null, ['label' => 'Telefonszám'])
+            ->add('email', EmailType::class, ['label' => 'Email cím'])
+            ->add('password', PasswordType::class, ['label' => 'Jelszó'])
+            ->add('roles', ChoiceType::class, ['choices' =>
+                [
+                    'Felhasználó' => 'ROLE_USER',
+                    'Admin' => 'ROLE_ADMIN'
+                ],
+                'multiple' => true,
+                'required' => true,
+                'label' => 'Szerepkör'])
+
             ->getForm();
 
 
@@ -42,11 +65,24 @@ class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($user);
-            $entityManager->flush();
 
-            return $this->redirectToRoute('user_index');
+            try{
+                $user->setPassword($this->passwordEncoder->encodePassword($user, $user->getPassword()));
+                $user->setCreatedBy($this->getUser());
+
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->persist($user);
+                $entityManager->flush();
+
+                return $this->redirectToRoute('user_index');
+            }
+            catch (UniqueConstraintViolationException $ucwe)
+            {
+                $form->addError(new FormError('Ez az email cím már foglalt!'));
+            }
+            catch (\Exception $e){
+                $form->addError(new FormError('Váratlan hiba!' . $e->getMessage()));
+            }
         }
 
         return $this->render('user/new.html.twig', [
@@ -70,10 +106,33 @@ class UserController extends AbstractController
      */
     public function edit(Request $request, User $user): Response
     {
-        $form = $this->createForm(UserType::class, $user);
+
+        $form = $this->createFormBuilder($user)
+            ->add('userName', null, ['label' => 'Név'])
+            ->add('phoneNumber', null, ['label' => 'Telefonszám'])
+            ->add('email', EmailType::class, ['label' => 'Email cím'])
+            ->add('newPassword', PasswordType::class, ['label' => 'Jelszó', 'required' => false])
+            ->add('roles', ChoiceType::class, ['choices' =>
+                [
+                    'ROLE_USER' => 'ROLE_USER',
+                    'ROLE_ADMIN' => 'ROLE_ADMIN'
+                ],
+                'multiple' => true,
+                'required' => true,
+                'label' => 'Szerepkör'])
+
+            ->getForm();
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            if(strlen(trim($user->getPassword())) > 0)
+            {
+                $user->setPassword($this->passwordEncoder->encodePassword($user, $user->getNewPassword()));
+            }
+
+
             $this->getDoctrine()->getManager()->flush();
 
             return $this->redirectToRoute('user_index', [

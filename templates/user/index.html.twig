@@ -1,21 +1,21 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}User index{% endblock %}
+{% block title %}Felhasználók{% endblock %}
 
 {% block body %}
-    <h1>User index</h1>
+    <h1>Felhasználók</h1>
 
-    <table class="table">
+    <table class="table table-striped">
         <thead>
             <tr>
-                <th>Id</th>
-                <th>UserName</th>
-                <th>PhoneNumber</th>
-                <th>CreatedAt</th>
+                <th>Azonosító</th>
+                <th>Név</th>
+                <th>Telefonszám</th>
+                <th>Létrehozva</th>
                 <th>Email</th>
-                <th>Roles</th>
-                <th>Password</th>
-                <th>actions</th>
+                <th>Szerepkörök</th>
+                <th>Létrehozta</th>
+                <th>#</th>
             </tr>
         </thead>
         <tbody>
@@ -24,22 +24,22 @@
                 <td>{{ user.id }}</td>
                 <td>{{ user.userName }}</td>
                 <td>{{ user.phoneNumber }}</td>
-                <td>{{ user.createdAt ? user.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ user.createdAt ? user.createdAt|date('Y-m-d H:i') : '' }}</td>
                 <td>{{ user.email }}</td>
                 <td>{{ user.roles ? user.roles|json_encode : '' }}</td>
-                <td>{{ user.password }}</td>
+                <td>{{ user.createdBy ? user.createdBy : '-' }}</td>
                 <td>
-                    <a href="{{ path('user_show', {'id': user.id}) }}">show</a>
-                    <a href="{{ path('user_edit', {'id': user.id}) }}">edit</a>
+                    <a href="{{ path('user_show', {'id': user.id}) }}" class="btn btn-outline-primary btn-sm"><i class="fas fa-eye"></i></a>
+                    <a href="{{ path('user_edit', {'id': user.id}) }}" class="btn btn-outline-warning btn-sm"><i class="fas fa-user-edit"></i></a>
                 </td>
             </tr>
         {% else %}
             <tr>
-                <td colspan="8">no records found</td>
+                <td colspan="8">nincs bejegyzés</td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
 
-    <a href="{{ path('user_new') }}">Create new</a>
+    <a href="{{ path('user_new') }}" class="btn btn-outline-success"><i class="fas fa-user-plus"></i> Új létrehozása</a>
 {% endblock %}

@@ -25,9 +25,7 @@ class UserFixtures extends Fixture
             ->setPhoneNumber("+3630/111-2222")
             ->setPassword($this->passwordEncoder->encodePassword($user, 'wm_pass'));
 
-
-        // $product = new Product();
-        // $manager->persist($product);
+        $manager->persist($user);
 
         $manager->flush();
     }
